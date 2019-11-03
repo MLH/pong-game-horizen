@@ -1,0 +1,13 @@
+{
+  "name": "zen-pong-web",
+  "version": "0.0.1",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.17.1",
+    "zencashjs": "^1.2.2"
+  },
+  "devDependencies": {
+    "nodemon": "^1.19.4"
+  }
+}
