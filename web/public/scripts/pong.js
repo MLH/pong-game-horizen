@@ -181,15 +181,16 @@ Pong = {
 
   onkeydown: function(keyCode) {
     switch (keyCode) {
-      case Game.KEY.ZERO:
-        this.startDemo();
-        break;
+      // case Game.KEY.ZERO:
+      //   this.startDemo();
+      //   break;
       case Game.KEY.ONE:
         this.startSinglePlayer();
         break;
-      case Game.KEY.TWO:
-        this.startDoublePlayer();
-        break;
+      // case Game.KEY.TWO:
+      // Disabling Multiplayer for now
+      //   this.startDoublePlayer();
+      //   break;
       case Game.KEY.ESC:
         this.stop(true);
         break;
@@ -272,7 +273,7 @@ Pong = {
 
     draw: function(ctx) {
       ctx.drawImage(this.press1.image, this.press1.x, this.press1.y);
-      ctx.drawImage(this.press2.image, this.press2.x, this.press2.y);
+      // ctx.drawImage(this.press2.image, this.press2.x, this.press2.y);
       if (this.winner == 0)
         ctx.drawImage(this.winner1.image, this.winner1.x, this.winner1.y);
       else if (this.winner == 1)

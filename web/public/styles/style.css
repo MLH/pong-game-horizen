@@ -1,0 +1,60 @@
+@import url("https://fonts.googleapis.com/css?family=Montserrat:100,100i,200,200i,300,300i,400,400i,500,500i,600,600i,700,700i,800,800i,900,900i");
+
+:root {
+  --displayColor: #0074d9;
+  --lossColor: #ff4136;
+  --winColor: #2ecc40;
+  --textShadowColor: var(--displayColor);
+}
+
+body {
+  font-family: "Montserrat", sans-serif;
+  background: #f4f4f4;
+}
+body {
+  font-family: "Montserrat", sans-serif;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.topbar-bot {
+  border-bottom: 1px solid #ddd;
+}
+
+.flex-topbar {
+  width: 65%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.flex-topbar .navbar-text {
+  font-size: 21px;
+  font-weight: bold;
+}
+
+.pong--container {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+#payment {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+}
+
+#results-container {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+}
+
+#prize-form {
+  padding: 30px 0;
+}

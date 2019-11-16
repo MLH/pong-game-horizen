@@ -1,8 +1,13 @@
-body {
+#content {
   background-color: black;
   color: #aaa;
   font-size: 12pt;
-  padding: 1em;
+  min-height: 100vh;
+  padding: 40px 0;
+}
+
+.hidden {
+  display: none;
 }
 
 #unsupported {
@@ -28,32 +33,7 @@ body {
   text-align: center;
   margin: 0;
 }
-#sidebar .parts {
-  padding-left: 1em;
-  list-style-type: none;
-  margin-bottom: 2em;
-  text-align: right;
-}
-#sidebar .parts li a {
-  color: white;
-  text-decoration: none;
-}
-#sidebar .parts li a:visited {
-  color: white;
-}
-#sidebar .parts li a:hover {
-  color: white;
-  text-decoration: underline;
-}
-#sidebar .parts li a.selected {
-  color: #f08010;
-}
-#sidebar .parts li a i {
-  color: #aaa;
-}
-#sidebar .parts li a.selected i {
-  color: #f08010;
-}
+
 #sidebar .settings {
   line-height: 1.2em;
   height: 1.2em;
