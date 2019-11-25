@@ -4,6 +4,9 @@ const Game = require("./lib/game");
 const Zen = require("./lib/zen");
 
 const PORT = process.env.PORT || 5000;
+const ZEN_PONG_ADDRESS =
+  process.env.ZEN_PONG_ADDRESS || "znYsZa8ugtWRnYZ1Qecvh5c8NowMrrnnYuQ";
+
 const app = express();
 
 // Set up middleware to handle request params
@@ -13,16 +16,56 @@ app.use(express.static("public")); // Serve content from public folder
 
 // Endpoint used to create a new game wallet
 app.post("/api/wallets", async (req, res) => {
-  const gameWallet = await Zen.getNewAddress();
-
-  res.json({ data: { gameWallet } });
+  res.json({ data: { gameWallet: ZEN_PONG_ADDRESS } });
 });
 
-app.get("/api/wallets/:id/transactions", async (req, res) => {
-  const params = Object.assign({}, req.body, req.params);
-  const transactions = (await Zen.listAddressGroupings()) || [];
+app.get("/api/wallets/:address/transactions", async (req, res) => {
+  const { address, gameId, all = false } = Object.assign(
+    {},
+    req.body,
+    req.params,
+    req.query
+  );
 
-  res.json({ data: transactions });
+  try {
+    const game = Game.getGame(gameId);
+    const wallet = game && game.gameWallet ? game.gameWallet : address;
+    const timestamp =
+      game && game.createdAt ? game.createdAt : Math.ceil(Date.now() / 1000);
+
+    let transactions =
+      (await Zen.getTransactions(wallet)).items.filter(t => {
+        const isConfirmed = t.confirmations > 0;
+        const toAddresses = t.vin.map(v => v.addr);
+        const isToPongWallet = toAddresses.some(addr => addr === address);
+        const isRecent = t.time >= timestamp;
+
+        console.log(
+          JSON.stringify(
+            {
+              t: [t.txid, t.time],
+              toAddresses,
+              address,
+              gameId,
+              all,
+              game: game || "NULL",
+              wallet,
+              timestamp,
+              isConfirmed,
+              isToPongWallet,
+              isRecent
+            },
+            null,
+            2
+          )
+        );
+
+        return all || (isConfirmed && isToPongWallet && isRecent);
+      }) || [];
+    res.json({ data: transactions });
+  } catch (_) {
+    res.json({ data: [] });
+  }
 });
 
 // Endpoint used to register a game
@@ -42,19 +85,16 @@ app.put("/api/games/:id/result", (req, res) => {
 });
 
 // Endpoint used to update the player wallet to redeem the prize
-app.put("/api/games/:id/playerWallet", (req, res) => {
+app.put("/api/games/:id/playerWallet", async (req, res) => {
   const { id, playerWallet } = Object.assign({}, req.body, req.params);
   const game = Game.updatePlayerWallet(id, playerWallet);
 
   if (game.result === Game.RESULT_WIN) {
-    // TODO: transfer tokens to winner
-    setTimeout(() => {
-      game.transaction = {
-        mocked: true,
-        value: 10000
-      };
-      res.json({ data: { game } });
-    }, 300);
+    const tx = await Zen.createTransaction(playerWallet);
+
+    game.transaction = tx;
+
+    res.json({ data: { game } });
   } else {
     res.json({ data: { game } });
   }

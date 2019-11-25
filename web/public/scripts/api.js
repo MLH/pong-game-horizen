@@ -60,10 +60,10 @@ const API = (() => {
     return game;
   };
 
-  const listTransactions = async gameWallet => {
-    const {
-      data: { transactions }
-    } = await get(`/api/wallets/${gameWallet}/transactions`);
+  const listTransactions = async (gameWallet, gameId) => {
+    const { data: transactions } = await get(
+      `/api/wallets/${gameWallet}/transactions?gameId=${gameId}`
+    );
 
     return transactions;
   };
