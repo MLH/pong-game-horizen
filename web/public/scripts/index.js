@@ -60,6 +60,9 @@
 
       start() {
         const startGameButton = document.getElementById("start-game-button");
+        const checkPaymentButton = document.getElementById(
+          "check-payment-button"
+        );
         const redeemPrizeButton = document.getElementById(
           "redeem-prize-button"
         );
@@ -78,11 +81,30 @@
           UI.hideGameContainer();
           UI.hideGameForm();
 
-          paymentInstructionsEl.textContent = `Please transfer X Zens to ${gameWallet}`;
+          const registeredGame = await API.createGame(gameWallet);
+          STATE.game = registeredGame;
 
-          const watchForPayment = async (gameWallet, mockPayment = false) => {
-            const transactions = await API.listTransactions(gameWallet);
-            const hasPaid = mockPayment; // TODO: implement logic to verify payment
+          paymentInstructionsEl.textContent = `Please transfer X Zens to ${gameWallet} and provide your wallet address!`;
+        });
+
+        checkPaymentButton.addEventListener("click", async event => {
+          event.preventDefault();
+          const playerWalletInputEl = document.getElementById(
+            "player-wallet-input"
+          );
+          const playerWallet = playerWalletInputEl.value;
+          const gameWallet = await API.createWallet();
+          const paymentStatusEl = document.getElementById("payment-status");
+
+          await API.updateGamePlayerWallet(STATE.game.id, playerWallet);
+
+          const watchForPayment = async gameWallet => {
+            const transactions = await API.listTransactions(
+              gameWallet,
+              STATE.game.id
+            );
+            console.log({ transactions });
+            const hasPaid = !!transactions.length; // TODO: THIS IS NOT SAFE! Check if there is a more reliable way to check this
 
             if (hasPaid) {
               paymentStatusEl.textContent = "We will start the game soon.";
@@ -95,17 +117,17 @@
               return hasPaid;
             } else {
               paymentStatusEl.textContent = "Waiting for payment";
-              setTimeout(() => watchForPayment(gameWallet, true), 1000);
+              setTimeout(() => watchForPayment(gameWallet), 5000);
             }
           };
 
-          watchForPayment(gameWallet);
+          watchForPayment(playerWallet);
         });
 
         redeemPrizeButton.addEventListener("click", async event => {
           event.preventDefault();
           const playerWalletInputEl = document.getElementById(
-            "player-wallet-input"
+            "prize-wallet-input"
           );
           const playerWallet = playerWalletInputEl.value;
 
@@ -129,9 +151,6 @@
   }
 
   async function startGame(gameWallet) {
-    const registeredGame = await API.createGame(gameWallet);
-    STATE.game = registeredGame;
-
     var size = document.getElementById("size");
     var sound = document.getElementById("sound");
 
@@ -140,7 +159,7 @@
       eventHandlers: {
         end: async (message, { winner }) => {
           const updatedGame = await API.updateGameResult(
-            registeredGame.id,
+            STATE.game.id,
             gameWallet,
             winner
           );

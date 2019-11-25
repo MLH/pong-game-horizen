@@ -2,11 +2,14 @@ const RESULT_WIN = 0;
 const RESULT_LOSS = 1;
 const GAMES = {};
 
+const getTimestamp = () => Date.now() / 1000;
+
 const registerGame = gameWallet => {
-  const id = Date.now();
+  const id = Object.keys(GAMES).length + 1;
+
   const game = {
     id,
-    createdAt: new Date(),
+    createdAt: getTimestamp(),
     gameWallet,
     playerWallet: null,
     result: null
@@ -26,7 +29,7 @@ const updateResult = (gameId, result) => {
 
   if (game.result === null) {
     game.result = result;
-    game.finishedAt = new Date();
+    game.finishedAt = getTimestamp();
   }
 
   return game;
@@ -41,7 +44,7 @@ const updatePlayerWallet = (gameId, playerWallet) => {
 
   if (game.playerWallet === null) {
     game.playerWallet = playerWallet;
-    game.finishedAt = new Date();
+    game.finishedAt = getTimestamp();
   }
 
   return game;

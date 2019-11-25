@@ -50,7 +50,7 @@
           <h2 id="result"></h2>
           <form id="prize-form">
             <input
-              id="player-wallet-input"
+              id="prize-wallet-input"
               type="text"
               placeholder="Input the wallet address to redeem the prize"
             />
@@ -69,7 +69,19 @@
 
         <div class="hidden" id="payment-container">
           <div id="payment-instructions"></div>
-          <div id="payment-status"></div>
+
+          <form id="payment-confirmation-form">
+            <input
+              id="player-wallet-input"
+              type="text"
+              placeholder="Input the wallet address you used to pay"
+            />
+            <button id="check-payment-button" type="submit">
+              Check for payment!
+            </button>
+
+            <div id="payment-status"></div>
+          </form>
         </div>
 
         <div class="hidden" id="game-container">
