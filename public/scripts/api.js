@@ -21,29 +21,18 @@ const API = (() => {
 
   const get = async (url, data) => await makeRequest(url);
 
-  const createWallet = async () => {
-    const {
-      data: { gameWallet }
-    } = await fetchPost("/api/wallets");
-
-    return gameWallet;
-  };
-
-  const createGame = async gameWallet => {
+  const createGame = async () => {
     const {
       data: { game }
-    } = await fetchPost("/api/games", {
-      gameWallet
-    });
+    } = await fetchPost("/api/games");
 
     return game;
   };
 
-  const updateGameResult = async (gameId, gameWallet, result) => {
+  const updateGameResult = async (gameId, result) => {
     const {
       data: { game }
     } = await fetchPut(`/api/games/${gameId}/result`, {
-      gameWallet,
       result
     });
 
@@ -60,10 +49,8 @@ const API = (() => {
     return game;
   };
 
-  const listTransactions = async (gameWallet, gameId) => {
-    const { data: transactions } = await get(
-      `/api/wallets/${gameWallet}/transactions?gameId=${gameId}`
-    );
+  const listTransactions = async gameId => {
+    const { data: transactions } = await get(`/api/games/${gameId}/payments`);
 
     return transactions;
   };
@@ -73,7 +60,6 @@ const API = (() => {
     updateGameResult,
     updateGamePlayerWallet,
 
-    createWallet,
     listTransactions
   };
 })();
