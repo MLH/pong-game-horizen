@@ -1,5 +1,5 @@
 (() => {
-  const STATE = { gameWallet: null, game: null };
+  const STATE = { game: null };
 
   const UI = (() => {
     function hideElement(selector) {
@@ -57,6 +57,13 @@
         updateResult("Sorry, you lost!");
         hideElement("prize-form");
       },
+      displaySuccessPrize(txUrl) {
+        debugger;
+        updateResult(
+          `The prize was successfully sent to your wallet! Check the transaction here: ${txUrl}`
+        );
+        hideElement("prize-form");
+      },
 
       start() {
         const startGameButton = document.getElementById("start-game-button");
@@ -70,7 +77,6 @@
         startGameButton.addEventListener("click", async event => {
           event.preventDefault();
 
-          const gameWallet = await API.createWallet();
           const paymentInstructionsEl = document.getElementById(
             "payment-instructions"
           );
@@ -81,7 +87,9 @@
           UI.hideGameContainer();
           UI.hideGameForm();
 
-          const registeredGame = await API.createGame(gameWallet);
+          const registeredGame = await API.createGame();
+          const { gameWallet } = registeredGame;
+
           STATE.game = registeredGame;
 
           paymentInstructionsEl.textContent = `Please transfer X Zens to ${gameWallet} and provide your wallet address!`;
@@ -93,16 +101,12 @@
             "player-wallet-input"
           );
           const playerWallet = playerWalletInputEl.value;
-          const gameWallet = await API.createWallet();
           const paymentStatusEl = document.getElementById("payment-status");
 
           await API.updateGamePlayerWallet(STATE.game.id, playerWallet);
 
-          const watchForPayment = async gameWallet => {
-            const transactions = await API.listTransactions(
-              gameWallet,
-              STATE.game.id
-            );
+          const watchForPayment = async () => {
+            const transactions = await API.listTransactions(STATE.game.id);
             console.log({ transactions });
             const hasPaid = !!transactions.length; // TODO: THIS IS NOT SAFE! Check if there is a more reliable way to check this
 
@@ -112,12 +116,12 @@
               setTimeout(() => {
                 UI.displayGameContainer();
                 UI.hidePaymentContainer();
-                startGame(gameWallet);
+                startGame();
               }, 1000);
               return hasPaid;
             } else {
               paymentStatusEl.textContent = "Waiting for payment";
-              setTimeout(() => watchForPayment(gameWallet), 5000);
+              setTimeout(() => watchForPayment(), 5000);
             }
           };
 
@@ -131,7 +135,15 @@
           );
           const playerWallet = playerWalletInputEl.value;
 
-          API.updateGamePlayerWallet(STATE.game.id, playerWallet);
+          const response = await API.updateGamePlayerWallet(
+            STATE.game.id,
+            playerWallet
+          );
+          debugger;
+          
+          const url = `https://explorer.horizen.global/tx//${response.transaction.txid}`;
+          debugger;
+          UI.displaySuccessPrize(url);
         });
       }
     };
@@ -150,7 +162,7 @@
     UI.displayResultsContainer();
   }
 
-  async function startGame(gameWallet) {
+  async function startGame() {
     var size = document.getElementById("size");
     var sound = document.getElementById("sound");
 
@@ -158,11 +170,7 @@
       sound: sound && sound.checked,
       eventHandlers: {
         end: async (message, { winner }) => {
-          const updatedGame = await API.updateGameResult(
-            STATE.game.id,
-            gameWallet,
-            winner
-          );
+          const updatedGame = await API.updateGameResult(STATE.game.id, winner);
 
           STATE.game = updatedGame;
 
