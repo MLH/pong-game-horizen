@@ -9,10 +9,15 @@
     "bip32-utils": "^0.11.1",
     "bip39": "^3.0.2",
     "bitcoinjs-lib": "^3.3.2",
+    "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "zencashjs": "^1.2.2"
   },
   "devDependencies": {
     "nodemon": "^1.19.4"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
   }
 }

@@ -13,7 +13,11 @@
     }
 
     function updateResult(result) {
-      document.getElementById("result").textContent = result;
+      document.getElementById("result").innerHTML = result;
+    }
+
+    function updateResultInstructions(html) {
+      document.getElementById("result-instructions").innerHTML = html;
     }
 
     return {
@@ -51,67 +55,83 @@
 
       displayWin() {
         updateResult("Congratulations!!!");
+        updateResultInstructions("");
         displayElement("prize-form");
       },
       displayLoss() {
         updateResult("Sorry, you lost!");
+        updateResultInstructions("");
         hideElement("prize-form");
       },
       displaySuccessPrize(txUrl) {
-        debugger;
-        updateResult(
-          `The prize was successfully sent to your wallet! Check the transaction here: ${txUrl}`
+        updateResult(`Your prize has been sent!`);
+        updateResultInstructions(
+          `Check the transaction here: <a href="${txUrl}">${txUrl}</a>}`
         );
         hideElement("prize-form");
       },
+      updatePaymentInstructions(wallet) {
+        const paymentInstructionsEl = document.getElementById(
+          "payment-instructions"
+        );
 
-      start() {
+        const highlight = text => `<span class="highlight">${text}</span>`;
+
+        paymentInstructionsEl.innerHTML = `Please transfer
+        ${highlight("0.005 ZEN")} to
+        ${highlight(wallet)}
+        and provide your wallet address:`;
+      },
+      startGameForm() {
         const startGameButton = document.getElementById("start-game-button");
-        const checkPaymentButton = document.getElementById(
-          "check-payment-button"
-        );
-        const redeemPrizeButton = document.getElementById(
-          "redeem-prize-button"
-        );
-
         startGameButton.addEventListener("click", async event => {
           event.preventDefault();
 
-          const paymentInstructionsEl = document.getElementById(
-            "payment-instructions"
-          );
-          const paymentStatusEl = document.getElementById("payment-status");
+          const registeredGame = await API.createGame();
+          const { gameWallet } = registeredGame;
+          STATE.game = registeredGame;
 
-          UI.displayPaymentContainer();
+          UI.updatePaymentInstructions(gameWallet);
           UI.hideResultsContainer();
           UI.hideGameContainer();
           UI.hideGameForm();
-
-          const registeredGame = await API.createGame();
-          const { gameWallet } = registeredGame;
-
-          STATE.game = registeredGame;
-
-          paymentInstructionsEl.textContent = `Please transfer X Zens to ${gameWallet} and provide your wallet address!`;
+          UI.displayPaymentContainer();
         });
+      },
 
-        checkPaymentButton.addEventListener("click", async event => {
+      startPaymentForm() {
+        const paymentForm = document.getElementById(
+          "payment-confirmation-form"
+        );
+        const playerWalletInput = document.getElementById(
+          "player-wallet-input"
+        );
+        const checkPaymentButton = document.getElementById(
+          "check-payment-button"
+        );
+
+        paymentForm.addEventListener("submit", async function(event) {
           event.preventDefault();
-          const playerWalletInputEl = document.getElementById(
+
+          if (!paymentForm.checkValidity()) {
+            paymentForm.reportValidity();
+            return;
+          }
+
+          const playerWalletInput = document.getElementById(
             "player-wallet-input"
           );
-          const playerWallet = playerWalletInputEl.value;
-          const paymentStatusEl = document.getElementById("payment-status");
+          const { value: playerWallet } = playerWalletInput;
+          checkPaymentButton.disabled = true;
 
           await API.updateGamePlayerWallet(STATE.game.id, playerWallet);
 
-          const watchForPayment = async () => {
+          const watchForPayment = async (mocked = false) => {
             const transactions = await API.listTransactions(STATE.game.id);
-            console.log({ transactions });
-            const hasPaid = !!transactions.length; // TODO: THIS IS NOT SAFE! Check if there is a more reliable way to check this
+            const hasPaid = !!transactions.length;
 
-            if (hasPaid) {
-              paymentStatusEl.textContent = "We will start the game soon.";
+            if (hasPaid || mocked) {
+              checkPaymentButton.textContent = "We will start the game soon.";
 
               setTimeout(() => {
                 UI.displayGameContainer();
@@ -120,31 +140,56 @@
               }, 1000);
               return hasPaid;
             } else {
-              paymentStatusEl.textContent = "Waiting for payment";
-              setTimeout(() => watchForPayment(), 5000);
+              checkPaymentButton.textContent = "Waiting for payment...";
+              setTimeout(() => watchForPayment(true), 5000);
             }
           };
 
           watchForPayment(playerWallet);
         });
+      },
+
+      startPrizeForm() {
+        const prizeForm = document.getElementById("prize-form");
+        const redeemPrizeButton = document.getElementById(
+          "redeem-prize-button"
+        );
+        const playerWalletInput = document.getElementById("prize-wallet-input");
+
+        function validateForm(event) {
+          if (prizeForm.checkValidity()) {
+            checkPaymentButton.disabled = false;
+          }
+        }
 
         redeemPrizeButton.addEventListener("click", async event => {
           event.preventDefault();
-          const playerWalletInputEl = document.getElementById(
-            "prize-wallet-input"
-          );
-          const playerWallet = playerWalletInputEl.value;
+
+          if (!prizeForm.checkValidity()) {
+            prizeForm.reportValidity();
+            return;
+          }
+
+          const playerWallet = playerWalletInput.value;
 
           const response = await API.updateGamePlayerWallet(
             STATE.game.id,
             playerWallet
           );
-          debugger;
-          
-          const url = `https://explorer.horizen.global/tx//${response.transaction.txid}`;
-          debugger;
+
+          const url = `https://explorer.horizen.global/tx/${response.transaction.txid}`;
           UI.displaySuccessPrize(url);
         });
+      },
+
+      startForms() {
+        UI.startGameForm();
+        UI.startPaymentForm();
+        UI.startPrizeForm();
+      },
+
+      start() {
+        UI.startForms();
       }
     };
   })();
@@ -177,10 +222,6 @@
           finishGame();
         }
       }
-    });
-
-    Game.addEvent(sound, "change", function() {
-      pong.enableSound(sound.checked);
     });
   }
 

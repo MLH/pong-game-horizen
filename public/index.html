@@ -33,7 +33,7 @@
   </head>
 
   <body>
-    <nav class="navbar navbar-default topbar-bot">
+    <nav class="navbar navbar-default topbar">
       <div class="container-fluid">
         <div class="navbar-header flex-topbar">
           <a class="navbar-brand" href="/">
@@ -44,74 +44,100 @@
       </div>
     </nav>
 
-    <div id="content">
-      <div class="container pong--container">
-        <div id="results-container" class="container hidden">
+    <section id="content">
+      <section class="container pong--container">
+        <section id="results-container" class="container hidden">
           <h2 id="result"></h2>
-          <form id="prize-form">
-            <input
-              id="prize-wallet-input"
-              type="text"
-              placeholder="Input the wallet address to redeem the prize"
-            />
+          <p id="result-instructions"></p>
+
+          <form id="prize-form" class="form">
+            <fieldset class="form-group">
+              <label for="prize-wallet-input">
+                Please provide a valid ZEN Wallet address to redeem your Prize:
+              </label>
+
+              <input
+                id="prize-wallet-input"
+                type="text"
+                class="form-control"
+                placeholder="Your wallet address..."
+                pattern="[A-Za-z0-9]{35}"
+                minlength="35"
+                maxlength="35"
+                title="Wallets have 35 characters (letters and numbers). For instance: 'znnJSqJjEbrQoZq7xnTuev1mYJjq7wGeanW'"
+                required
+              />
+            </fieldset>
+
             <button id="redeem-prize-button" type="submit">
               Redeem your prize!
             </button>
           </form>
           <h2><a href="/">Play Again!</a></h2>
-        </div>
+        </section>
 
-        <div id="game-form-container">
-          <form>
+        <section id="game-form-container">
+          <form class="form">
+            <p>Press 'Start Game' to start a new Pong Game! Good Luck!</p>
             <button type="submit" id="start-game-button">Start new game</button>
           </form>
-        </div>
+        </section>
 
-        <div class="hidden" id="payment-container">
-          <div id="payment-instructions"></div>
+        <section class="hidden" id="payment-container">
+          <form id="payment-confirmation-form" class="form">
+            <fieldset class="form-group">
+              <label for="player-wallet-input" id="payment-instructions"
+                >Your wallet address:</label
+              >
+              <input
+                class="form-control"
+                id="player-wallet-input"
+                placeholder="Your wallet address..."
+                type="text"
+                pattern="[A-Za-z0-9]{35}"
+                minlength="35"
+                maxlength="35"
+                title="Wallets have 35 characters (letters and numbers). For instance: 'znnJSqJjEbrQoZq7xnTuev1mYJjq7wGeanW'"
+                required
+              />
+            </fieldset>
 
-          <form id="payment-confirmation-form">
-            <input
-              id="player-wallet-input"
-              type="text"
-              placeholder="Input the wallet address you used to pay"
-            />
             <button id="check-payment-button" type="submit">
               Check for payment!
             </button>
 
-            <div id="payment-status"></div>
+            <div id="payment-status" role="contentinfo"></div>
           </form>
-        </div>
+        </section>
 
-        <div class="hidden" id="game-container">
-          <div id="sidebar">
+        <section class="hidden" id="game-container">
+          <aside id="sidebar">
             <h2>This is Pong!</h2>
 
-            <div class="description">
+            <section class="description">
               <p>
                 This is a javascript version of Pong.
               </p>
               <p>Press <b>1</b> for a single player game.<br /></p>
               <p>Player 1 moves using the <b>Q</b> and <b>A</b> keys.<br /></p>
               <p><b>Esc</b> can be used to abandon a game.</p>
-            </div>
+            </section>
 
-            <div class="settings">
+            <section class="settings">
               <label for="sound">sound: </label>
               <input type="checkbox" id="sound" />
-            </div>
-          </div>
+            </section>
+          </aside>
 
           <canvas id="game">
-            <div id="unsupported">
+            <p id="unsupported">
               Sorry, this example cannot be run because your browser does not
               support the &lt;canvas&gt; element
-            </div>
+            </p>
           </canvas>
-        </div>
-      </div>
-    </div>
+        </section>
+      </section>
+    </section>
 
     <script src="/scripts/api.js" type="text/javascript"></script>
     <script src="/scripts/pong.js" type="text/javascript"></script>

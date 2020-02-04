@@ -1,6 +1,5 @@
 #content {
-  background-color: black;
-  color: #aaa;
+  color: #000;
   font-size: 12pt;
   min-height: 100vh;
   padding: 40px 0;
@@ -39,8 +38,7 @@
   height: 1.2em;
   text-align: right;
 }
-#sidebar .settings.size {
-}
+
 #sidebar .settings.speed {
   margin-bottom: 1em;
 }
@@ -77,15 +75,6 @@
   #game {
     width: 640px;
     height: 480px;
-  }
-}
-
-@media screen and (min-width: 1000px) {
-  #sidebar {
-    display: block;
-  }
-  #game {
-    margin-left: 18em;
   }
 }
 

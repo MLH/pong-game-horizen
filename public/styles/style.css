@@ -19,8 +19,9 @@ body {
   display: none !important;
 }
 
-.topbar-bot {
+.topbar {
   border-bottom: 1px solid #ddd;
+  background-color: #fff;
 }
 
 .flex-topbar {
@@ -37,10 +38,14 @@ body {
 }
 
 .pong--container {
-  align-items: center;
+  align-items: stretch;
   display: flex;
   flex-direction: column;
   justify-content: center;
+}
+
+#game-container {
+  background-color: #000;
 }
 
 #payment {
@@ -57,4 +62,9 @@ body {
 
 #prize-form {
   padding: 30px 0;
+}
+
+.highlight {
+  color: #ff4500;
+  font-weight: bolder;
 }
