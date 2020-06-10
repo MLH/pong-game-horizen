@@ -103,11 +103,11 @@ app.get(
     let transactions =
       (await Zen.getTransactions(wallet, { from: playerWallet })).items.filter(
         t => {
-          const isConfirmed = t.confirmations > 0;
+          //const isConfirmed = t.confirmations > 0;
           const toAddresses = t.vin.map(v => v.addr);
           const isRecent = t.time >= timestamp;
 
-          return all || (isConfirmed && isRecent);
+          return all || isRecent;
         }
       ) || [];
     res.json({ data: transactions });
